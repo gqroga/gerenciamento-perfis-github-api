@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:14-alpine
+    container_name: desafio-github-db
+    environment:
+      - POSTGRES_DB=desafio_github
+      - POSTGRES_USER=desafio_github
+      - POSTGRES_PASSWORD=12345
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U desafio_github"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: gerenciamento-perfis-github-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+volumes:
+  postgres-data:
